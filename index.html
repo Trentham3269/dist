@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title></title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" crossorigin=""/>
+	<style type="text/css">
+		#mapid { 
+			height: 750px; 
+		}
+	</style>
+</head>
+<body>
+	<div id="mapid"></div>
+	<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" crossorigin=""></script>
+    <script type="text/javascript">
+    	var mymap = L.map('mapid').setView([-37.833988, 144.958119], 11);
+    	L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+    		maxZoom: 18,
+		}).addTo(mymap);
+
+    	// Haversine distance function
+		function distance(lat1, lon1, lat2, lon2, unit) {
+	        var radlat1 = Math.PI * lat1/180
+	        var radlat2 = Math.PI * lat2/180
+	        var radlon1 = Math.PI * lon1/180
+	        var radlon2 = Math.PI * lon2/180
+	        var theta = lon1-lon2
+	        var radtheta = Math.PI * theta/180
+	        var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+	        dist = Math.acos(dist)
+	        dist = dist * 180/Math.PI
+	        dist = dist * 60 * 1.1515
+	        if (unit=="K") { dist = dist * 1.609344 }
+	        if (unit=="N") { dist = dist * 0.8684 }
+        	return dist
+		};
+
+		// Add default marker
+		var mel = L.marker([-37.833988, 144.958119]).addTo(mymap).bindPopup('Melbourne')
+
+		// Add marker on click
+		var marker = L.marker();
+		function onMapClick(e) {
+		    marker
+		        .setLatLng(e.latlng)
+		        .addTo(mymap)
+		        .bindPopup("You clicked the map at " + e.latlng.toString())
+		    var dist = distance(-37.833988, 144.958119, e.latlng.lat, e.latlng.lng, 'K');
+		    console.log(Math.round(dist*1000)/1000)
+		}
+		mymap.on('click', onMapClick);
+    </script>
+</body>
+</html>
