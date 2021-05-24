@@ -34,7 +34,7 @@
                 dist = dist * 60 * 1.1515
                 if (unit=="K") { dist = dist * 1.609344 }
                 if (unit=="N") { dist = dist * 0.8684 }
-                return dist
+                return Math.round(dist*1000)/1000
             };
 
             // Add default marker
@@ -48,7 +48,7 @@
                         .addTo(mymap)
                         .bindPopup("You clicked the map at " + e.latlng.toString())
                     var dist = distance(-37.833988, 144.958119, e.latlng.lat, e.latlng.lng, 'K');
-                    console.log(Math.round(dist*1000)/1000)
+                    console.log(dist);
                 }
             mymap.on('click', onMapClick);
 
@@ -107,7 +107,10 @@
             function addPopup(feature, layer) {
                 var postcode = feature.properties.postcode.toString();
                 var count = feature.properties.count.toString();
-                layer.bindPopup("Postcode: " + postcode + ", Count: " + count);
+                var lat = feature.geometry.coordinates[1];
+                var lng = feature.geometry.coordinates[0];
+                var dist = distance(-37.833988, 144.958119, lat, lng, 'K');
+                layer.bindPopup("Postcode: " + postcode + ", Count: " + count + ", Distance: " + dist);
             }
 
             L.geoJSON(jsonFeatures, {
