@@ -128,15 +128,19 @@
                 onEachFeature: getFeatures
             }).addTo(mymap);
 
+            // Sum array function
+            function sumArray(arr) {
+                var sum = arr.reduce(function(a, b){
+                    return a + b;
+                }, 0);
+                return sum;
+            }
+
             // Sum distances array 
-            var sumDistances = distances.reduce(function(a, b){
-                return a + b;
-            }, 0);
+            var sumDistances = sumArray(distances);
 
             // Sum counts array
-            var sumCounts = counts.reduce(function(a, b){
-                return a + b;
-            }, 0);
+            var sumCounts = sumArray(counts);
 
             // Average distance calc
             var avgDistance = sumDistances / sumCounts;
