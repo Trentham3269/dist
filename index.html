@@ -103,19 +103,49 @@
                 jsonFeatures.push(feature);
             });
 
-            // Function for popup accessing features
-            function addPopup(feature, layer) {
-                var postcode = feature.properties.postcode.toString();
-                var count = feature.properties.count.toString();
+            var counts = [];
+            function test(feature) {
+                counts.push(feature.properties.count);
+                return counts;
+            }
+            // Function for accessing geoJSON features
+            var distances = [];
+            var counts = []; 
+            function getFeatures(feature, layer) {
+                // Convert to string for popup
+                var pcodeStr = feature.properties.postcode.toString();
+                var cntStr = feature.properties.count.toString();
+                // Get latlngs for distance calc
                 var lat = feature.geometry.coordinates[1];
                 var lng = feature.geometry.coordinates[0];
                 var dist = distance(-37.833988, 144.958119, lat, lng, 'K');
-                layer.bindPopup("Postcode: " + postcode + ", Count: " + count + ", Distance: " + dist);
+                // Create popup
+                layer.bindPopup("Postcode: " + pcodeStr + ", Count: " + cntStr + ", Distance: " + dist);
+                // Push weighted distances to array
+                var distCount = dist * feature.properties.count;
+                distances.push(distCount);         
+                // Push counts to array       
+                counts.push(feature.properties.count);
             }
 
+            // Add geoJSON points to map
             L.geoJSON(jsonFeatures, {
-                onEachFeature: addPopup
+                onEachFeature: getFeatures
             }).addTo(mymap);
+
+            // Sum distances array 
+            var sumDistances = distances.reduce(function(a, b){
+                return a + b;
+            }, 0);
+
+            // Sum counts array
+            var sumCounts = counts.reduce(function(a, b){
+                return a + b;
+            }, 0);
+
+            // Average distance calc
+            var avgDistance = sumDistances / sumCounts;
+            console.log(avgDistance);
         </script>
     </body>
 </html>
