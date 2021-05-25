@@ -22,3 +22,13 @@ function sumArray(arr) {
     }, 0);
     return sum;
 };
+
+// Calculate average distance
+function avgDist(distArr, cntArr) {
+  // Sum distances and counts arrays 
+  var sumDistances = sumArray(distances);
+  var sumCounts = sumArray(counts);
+  // Average distance calc
+  var avgDistance = sumDistances / sumCounts;
+  console.log(avgDistance);
+};

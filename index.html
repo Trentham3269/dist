@@ -28,62 +28,55 @@
             var gblLat = -37.833988;
             var gblLng = 144.958119;
             var marker = L.marker();
-                function onMapClick(e) {
-                  marker
-                      .setLatLng(e.latlng)
-                      .addTo(map)
-                      .bindPopup("You clicked the map at " + e.latlng.toString())
-                  // Remove default site marker (do we want this?)
-                  if (site != undefined) {
-                    map.removeLayer(site);
-                  };
-                  // Set global latlng
-                  gblLat = e.latlng.lat;
-                  gblLng = e.latlng.lng;
-                  // Re-populate features (is there a way to only update popup distance info)
-                  L.geoJSON(jsonFeatures, {
-                    onEachFeature: getFeatures
-                  }).addTo(map);
-                  // Sum distances array 
-                  var sumDistances = sumArray(distances);
-
-                  // Sum counts array
-                  var sumCounts = sumArray(counts);
-
-                  // Average distance calc
-                  var avgDistance = sumDistances / sumCounts;
-                  console.log(avgDistance);
-                }
+            function onMapClick(e) {
+              marker
+                  .setLatLng(e.latlng)
+                  .addTo(map)
+                  .bindPopup("You clicked the map at " + e.latlng.toString())
+              // Remove default site marker (do we want this?)
+              if (site != undefined) {
+                map.removeLayer(site);
+              };
+              // Set global latlng
+              gblLat = e.latlng.lat;
+              gblLng = e.latlng.lng;
+              // Re-populate features (is there a way to only update popup distance info)
+              L.geoJSON(jsonFeatures, {
+                onEachFeature: getFeatures
+              }).addTo(map);
+              // Re-calculate average distance
+              avgDist(distances, counts);
+            }
             map.on('click', onMapClick);
 
             // Create JSON data
             var data = 
-                [
-                    { 
-                        "employee_postcode": 3000, 
-                        "postcode_latitude": -37.8114,
-                        "postcode_longitude": 144.965,      
-                        "count": 37 
-                    },
-                    { 
-                        "employee_postcode": 3752, 
-                        "postcode_latitude": -37.6373,
-                        "postcode_longitude": 145.086,      
-                        "count": 17
-                    },
-                    { 
-                        "employee_postcode": 3840, 
-                        "postcode_latitude": -38.2601,
-                        "postcode_longitude": 145.397,      
-                        "count": 1
-                    },
-                    { 
-                        "employee_postcode": 3984, 
-                        "postcode_latitude": -38.3357,
-                        "postcode_longitude": 145.567,      
-                        "count": 1
-                    }
-                ]
+              [
+                { 
+                  "employee_postcode": 3000, 
+                  "postcode_latitude": -37.8114,
+                  "postcode_longitude": 144.965,      
+                  "count": 37 
+                },
+                { 
+                  "employee_postcode": 3752, 
+                  "postcode_latitude": -37.6373,
+                  "postcode_longitude": 145.086,      
+                  "count": 17
+                },
+                { 
+                  "employee_postcode": 3840, 
+                  "postcode_latitude": -38.2601,
+                  "postcode_longitude": 145.397,      
+                  "count": 1
+                },
+                { 
+                  "employee_postcode": 3984, 
+                  "postcode_latitude": -38.3357,
+                  "postcode_longitude": 145.567,      
+                  "count": 1
+                }
+              ]
 
             // Convert JSON to geoJSON
             var jsonFeatures = []
@@ -130,15 +123,8 @@
                 onEachFeature: getFeatures
             }).addTo(map);
 
-            // Sum distances array 
-            var sumDistances = sumArray(distances);
-
-            // Sum counts array
-            var sumCounts = sumArray(counts);
-
-            // Average distance calc
-            var avgDistance = sumDistances / sumCounts;
-            console.log(avgDistance);
+            // Output average distance
+            avgDist(distances, counts);
         </script>
     </body>
 </html>
