@@ -15,26 +15,46 @@
         <div id="mapid"></div>
         <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" crossorigin=""></script>
         <script type="text/javascript">
-            var mymap = L.map('mapid').setView([-37.833988, 144.958119], 8);
+            var map = L.map('mapid').setView([-37.833988, 144.958119], 8);
             L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
                 maxZoom: 18,
-            }).addTo(mymap);
+            }).addTo(map);
 
             // Add default marker
-            var mel = L.marker([-37.833988, 144.958119]).addTo(mymap).bindPopup('Melbourne')
+            var site = L.marker([-37.833988, 144.958119]).addTo(map).bindPopup('Melbourne')
 
             // Add marker on click
+            var gblLat = -37.833988;
+            var gblLng = 144.958119;
             var marker = L.marker();
                 function onMapClick(e) {
-                    marker
-                        .setLatLng(e.latlng)
-                        .addTo(mymap)
-                        .bindPopup("You clicked the map at " + e.latlng.toString())
-                    var dist = distance(-37.833988, 144.958119, e.latlng.lat, e.latlng.lng, 'K');
-                    console.log(dist);
+                  marker
+                      .setLatLng(e.latlng)
+                      .addTo(map)
+                      .bindPopup("You clicked the map at " + e.latlng.toString())
+                  // Remove default site marker (do we want this?)
+                  if (site != undefined) {
+                    map.removeLayer(site);
+                  };
+                  // Set global latlng
+                  gblLat = e.latlng.lat;
+                  gblLng = e.latlng.lng;
+                  // Re-populate features (is there a way to only update popup distance info)
+                  L.geoJSON(jsonFeatures, {
+                    onEachFeature: getFeatures
+                  }).addTo(map);
+                  // Sum distances array 
+                  var sumDistances = sumArray(distances);
+
+                  // Sum counts array
+                  var sumCounts = sumArray(counts);
+
+                  // Average distance calc
+                  var avgDistance = sumDistances / sumCounts;
+                  console.log(avgDistance);
                 }
-            mymap.on('click', onMapClick);
+            map.on('click', onMapClick);
 
             // Create JSON data
             var data = 
@@ -67,24 +87,22 @@
 
             // Convert JSON to geoJSON
             var jsonFeatures = []
-
-                data.forEach(function(point){
+              data.forEach(function(point){
                 var lat = point.postcode_latitude;
                 var lon = point.postcode_longitude;
 
                 var feature = {
-                    type: 'Feature',
-                    properties: {
-                        postcode: point.employee_postcode, 
-                        count: point.count
-                    },
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [lon,lat]
-                    }
+                  type: 'Feature',
+                  properties: {
+                      postcode: point.employee_postcode, 
+                      count: point.count
+                  },
+                  geometry: {
+                      type: 'Point',
+                      coordinates: [lon,lat]
+                  }
                 };
-
-                jsonFeatures.push(feature);
+              jsonFeatures.push(feature);
             });
 
             // Function for accessing geoJSON features
@@ -97,7 +115,7 @@
                 // Get latlngs for distance calc
                 var lat = feature.geometry.coordinates[1];
                 var lng = feature.geometry.coordinates[0];
-                var dist = distance(-37.833988, 144.958119, lat, lng, 'K');
+                var dist = distance(gblLat, gblLng, lat, lng, 'K');
                 // Create popup
                 layer.bindPopup("Postcode: " + pcodeStr + ", Count: " + cntStr + ", Distance: " + dist);
                 // Push weighted distances to array
@@ -110,7 +128,7 @@
             // Add geoJSON points to map
             L.geoJSON(jsonFeatures, {
                 onEachFeature: getFeatures
-            }).addTo(mymap);
+            }).addTo(map);
 
             // Sum distances array 
             var sumDistances = sumArray(distances);
